@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="cron-scheduler-demoFlow" doc:id="318a7699-8c30-46a0-9c64-8c42f6726524" >
+		<scheduler doc:name="Scheduler" doc:id="4a14870e-5e11-4655-bf66-8ee71c581787" >
+			<scheduling-strategy >
+				<cron expression="17/5 * * * * ?  " />
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="Transform Message" doc:id="9f9e34ca-fa47-491c-9fea-872a21b392da" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Flow triggered at ": now()
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="ccd30b58-f6e3-4724-981a-40efae900bde" path="C:\workspace\MuleSoft\MuleSoftWithFish\data\output_folder\cronfrequecy.json" mode="APPEND"/>
+	</flow>
+</mule>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="main-Flow" doc:id="331da98a-a46a-4c07-994f-7062f147ac5d" >
+		<http:listener doc:name="POST/airportinfo-fr" doc:id="dd405a34-4a28-44e2-8f7f-59bcfb92de58" config-ref="HTTP_Listener_config" path="/airportinfo-fr"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="c86cf5fc-1b97-4d20-b037-ebd17a14f375" >
+			<route >
+				<flow-ref doc:name="Write CSV" doc:id="57d147cb-2609-4bd5-937e-c11fca75fd64" name="write_CSV_Sub_Flow"/>
+			</route>
+			<route >
+				<flow-ref doc:name="Write JSON" doc:id="1b781958-20b0-4f46-a845-c3fb2e49e242" name="write_JSON_Sub_Flow"/>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Message to Client" doc:id="eaed5ce5-dc41-4772-a690-d05ede0aba48" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "Request processed succesfully!"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<sub-flow name="write_CSV_Sub_Flow" doc:id="d4eb55ed-57a3-4a90-b5af-863700ba5989" >
+		<ee:transform doc:name="CSV" doc:id="e0218251-db04-4db6-b00e-784f098f9dc1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv header=false
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="CSV" doc:id="ecaca72b-b446-400a-85fe-79515c5a16fe" path="C:\workspace\MuleSoft\MuleSoftWithFish\data\output_folder\airportinfo.csv" mode="APPEND"/>
+	</sub-flow>
+	<sub-flow name="write_JSON_Sub_Flow" doc:id="78f953f9-7431-4fff-aa9b-3e9a580f87f1" >
+		<ee:transform doc:name="JSON" doc:id="c9529792-2920-44d3-a335-25bd8d6e0ca3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="JSON" doc:id="8b702b41-665a-4e5b-aaf4-063695ac8f21" path="C:\workspace\MuleSoft\MuleSoftWithFish\data\output_folder\airportinfo.json" mode="APPEND"/>
+	</sub-flow>
+</mule>

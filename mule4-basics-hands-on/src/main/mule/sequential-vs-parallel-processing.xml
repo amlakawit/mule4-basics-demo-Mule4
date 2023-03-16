@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="sequential-processingFlow" doc:id="69abb54d-1b61-475c-aad5-413ba8574fca" >
+		<http:listener doc:name="POST/airpotinfo-sequential" doc:id="fa98213a-5458-489c-98e0-267f382005ca" config-ref="HTTP_Listener_config" allowedMethods="POST" path="/airportinfo-sequential"/>
+		<set-variable value="#[payload]" doc:name="airportinfo" doc:id="939afcee-c779-43a9-acf8-0b9b453966c1" variableName="airportinfo"/>
+		<ee:transform doc:name="CSV" doc:id="41727808-64ed-47b0-bbbb-df5d38003001" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv header=false
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="CSV" doc:id="7b59da4e-e73b-4f17-9c21-d1ae5359d94b" path="C:\workspace\MuleSoft\MuleSoftWithFish\data\output_folder\airportinfo.csv" mode="APPEND"/>
+		<ee:transform doc:name="JSON" doc:id="249b06c9-6226-4e05-aa1e-f2b6e716dfbc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.airportinfo]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="JSON" doc:id="ff559ded-f8c2-4c5e-a93f-17857bfaa2e7" path="C:\workspace\MuleSoft\MuleSoftWithFish\data\output_folder\airportinfo.json" mode="APPEND"/>
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"Message": "Airport information saved successfully!"&#10;}]' doc:name="Respose to Client " doc:id="fcc9821c-0a16-4350-92ff-f60c9cbe3bcd" />
+	</flow>
+	<flow name="parallel-processingFlow" doc:id="87b4b344-19cd-4b2a-b003-71f429c6779d" >
+		<http:listener doc:name="POST/airpotinfo-parallel" doc:id="f2ee61ac-6948-4237-ac6e-c53b88900f9a" config-ref="HTTP_Listener_config" path="/airportinfo-parallel" allowedMethods="POST" />
+		<scatter-gather doc:name="Scatter-Gather" doc:id="311dd960-0106-4a25-8925-c5da52810d99" >
+			<route >
+				<ee:transform doc:name="CSV" doc:id="bd578075-9cd3-462c-8346-97cc5d4472d2">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/csv header=false
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<file:write doc:name="CSV" doc:id="0063d6cc-b469-4fec-ae49-77d0b32ef1b0" path="C:\workspace\MuleSoft\MuleSoftWithFish\data\output_folder\airportinfop.csv" mode="APPEND" />
+			</route>
+			<route >
+				<ee:transform doc:name="JSON" doc:id="09e065a3-1972-4848-b2d8-a5c2cbc51447">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<file:write doc:name="JSON" doc:id="d3e0caa8-3868-4338-9376-726e866fcc59" path="C:\workspace\MuleSoft\MuleSoftWithFish\data\output_folder\airportinfop.json" mode="APPEND" />
+			</route>
+		</scatter-gather>
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"Message": "Airport information saved successfully!"&#10;}]' doc:name="Respose to Client " doc:id="008b97a3-53cb-4f31-bd11-79ec53e8eddb" />
+	</flow>
+</mule>

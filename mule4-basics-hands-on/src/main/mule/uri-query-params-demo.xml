@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="uri-query-params-demoFlow" doc:id="36b7c27b-5ada-42c8-8bc5-8478f8d82091" >
+		<http:listener doc:name="GET/weather/{cityId}" doc:id="63910cd3-3d77-4d7c-80e1-63236ec66f70" config-ref="HTTP_Listener_config" path="/weather/{cityId}" allowedMethods="GET"/>
+		<ee:transform doc:name="JSON" doc:id="fed2b7ca-7595-4fc6-aa0b-98fe17ecf150" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"State": attributes.queryParams.state,
+	"City Id": attributes.uriParams.cityId,
+	"Temprature": round(random()*100) ++ "F"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

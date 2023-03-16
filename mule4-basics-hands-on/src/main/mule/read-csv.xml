@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="read-csvFlow" doc:id="45b15c26-7f52-45bb-a85b-6e23bd828314" >
+		<http:listener doc:name="GET/data" doc:id="c333899e-1aee-4e3c-8d30-360a5a96cfd2" config-ref="HTTP_Listener_config" path="/data" allowedMethods="GET"/>
+		<file:read doc:name="Read CSV" doc:id="966add77-9a54-4972-b53b-3ed9ab7c08c0" path="C:\workspace\MuleSoft\MuleSoftWithFish\data\airports.csv"/>
+		<ee:transform doc:name="to JSON" doc:id="19ba04ef-f428-469d-a915-3b7f0b0875e3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
